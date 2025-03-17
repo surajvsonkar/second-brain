@@ -81,6 +81,4 @@ const Tag = mongoose.model("Tag", tagSchema)
 const Link = mongoose.model("Link", linkSchema)
 const Content = mongoose.model("Content", contentSchema)
 
-module.exports = {
-    User, Tag, Link, Content
-}
+module.exports = { User, Tag, Link, Content };
