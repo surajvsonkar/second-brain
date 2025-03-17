@@ -41,10 +41,18 @@ app.post('/api/v1/signup', async (req, res) => {
 	}
 });
 
-app.post('/api/v1/signin', (req, res) => {
+app.post('/api/v1/signin', async(req, res) => {
     const {username, password} = req.body
     if(username && password) {
-
+        const user = await User.findOne({username})
+        console.log(user.password)
+        const hashedPassword = await bcrypt.compare(password,user.password)
+        
+        if(hashedPassword) {
+            res.status(200).json("user loggedin successfully")
+        } else {
+            res.status(403).json("username and password isn't matching")
+        }
     } else {
         res.json("enter the required fields")
     }
