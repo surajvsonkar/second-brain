@@ -105,9 +105,26 @@ app.get('/api/v1/content',userMiddleware, async(req, res) => {
 	res.json({userContent})
 });
 
-app.delete('/api/v1/content', (req, res) => {});
+app.delete('/api/v1/content',userMiddleware, async(req, res) => {
+	const contentId = req.body.contentId
 
-app.post('/api/v1/brain/share', (req, res) => {});
+	try {
+		await Content.deleteMany({
+			_id: contentId,
+			// @ts-ignore
+			userId: req.userId
+		})
+		
+		res.status(200).json("content deleted!")
+	} catch (error) {
+		res.status(404).json(error)
+	}
+
+});
+
+app.post('/api/v1/brain/share', (req, res) => {
+
+});
 
 app.get('/api/v1/brain/:sharedLink', (req, res) => {});
 
