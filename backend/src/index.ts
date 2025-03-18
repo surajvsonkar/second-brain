@@ -2,9 +2,11 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken';
-const { User, Tag, Link, Content } = require('./db');
+import z from 'zod'
+import { User, Tag, Link, Content } from './db';
 const app = express();
-const jwtSecret = "suraj";
+import {JWT_KEY} from './config'
+import { userMiddleware } from './middleware';
 
 app.use(express.json());
 
@@ -17,27 +19,22 @@ app.post('/api/v1/signup', async (req, res) => {
 		const existingUser = await User.findOne({ username });
         console.log(existingUser)
 		if (existingUser) {
-			res.json('user already exists');
+			res.status(403).json('user already exists');
 			return;
 		} else {
 			try {
             
                 const hashedPassword = await bcrypt.hash(password, 10)
-				await User.create({
+				const newUser = await User.create({
 					username: username,
 					password: hashedPassword
 				});
-				const token = jwt.sign({ username }, jwtSecret);
-				res.status(200).json({
-					msg: 'user is created successfully',
-					token: token,
-				});
 			} catch (error) {
-				res.status(404).json(error);
+				res.status(500).json(error);
 			}
 		}
 	} else {
-		res.json('enter the required fields.');
+		res.status(411).json('enter the required fields.');
 	}
 });
 
@@ -45,11 +42,19 @@ app.post('/api/v1/signin', async(req, res) => {
     const {username, password} = req.body
     if(username && password) {
         const user = await User.findOne({username})
-        console.log(user.password)
+        // console.log(user.password)
+		// @ts-ignore
         const hashedPassword = await bcrypt.compare(password,user.password)
         
         if(hashedPassword) {
-            res.status(200).json("user loggedin successfully")
+			const token = jwt.sign({
+				// @ts-ignore
+				id: user._id
+			}, JWT_KEY);
+			res.status(200).json({
+				msg: 'user logged in successfully',
+				token: token,
+			});
         } else {
             res.status(403).json("username and password isn't matching")
         }
@@ -59,7 +64,29 @@ app.post('/api/v1/signin', async(req, res) => {
 
 });
 
-app.post('/api/v1/content', (req, res) => {});
+app.post('/api/v1/content',userMiddleware, async(req, res) => {
+	const link = req.body.link
+	const title = req.body.title
+	const type = req.body.type
+
+	try {
+		await Content.create({
+			title,
+			link,
+			type,
+			// @ts-ignore
+			userId: req.userId,
+			tags: []
+		})
+	
+		res.status(200).json({
+			msg: "content added successfully"
+		})
+	} catch (error) {
+		res.status(404).json(error)
+		
+	}
+});
 
 app.get('/api/v1/content', (req, res) => {});
 
