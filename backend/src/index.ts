@@ -8,6 +8,7 @@ const app = express();
 import {JWT_KEY} from './config'
 import { userMiddleware } from './middleware';
 import { ContextExclusionPlugin } from 'webpack';
+import { random } from './utils';
 
 app.use(express.json());
 
@@ -120,9 +121,28 @@ app.delete('/api/v1/content',userMiddleware, async(req, res) => {
 		res.status(404).json(error)
 	}
 
+	
 });
 
-app.post('/api/v1/brain/share', (req, res) => {
+app.post('/api/v1/brain/share', userMiddleware, async(req, res) => {
+	const share = req.body.share;
+	if(share){
+		await Link.create({
+			// @ts-ignore
+			userId: req.userId,
+			hash: random(10)
+
+		})
+	} else {
+		await Link.deleteOne({
+			// @ts-ignore
+			userId: req.userId
+		})
+	}
+
+	res.json({
+		message: "Updated shareable link"
+	})
 
 });
 
