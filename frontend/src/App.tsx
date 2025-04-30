@@ -1,21 +1,18 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import './App.css';
-import { Button, ButtonVariants } from './components/ui/Button';
-import { Plusicon } from './icons/Plusicon';
+import { useState } from 'react'
+import './App.css'
+import { Button } from './components/Button'
+import { PlusIcon } from './icons/PlusIcon'
+import { ShareIcon } from './icons/ShareIcon'
 
 function App() {
-	const [count, setCount] = useState(0);
+  const [count, setCount] = useState(0)
 
-	return (
-		<>
-			<h1 className="text-7xl font-bold underline">Hello world!</h1>
-      <Button variants={"primary"} size='sm' onClick={()=> {console.log("button is clicked")}} text='share' startIcon={<Plusicon size='lg'/>}/>
-      <Button variants={"secondary"} size='md' onClick={()=> {console.log("button is clicked")}} text='share'/> 
-      <Button variants={"primary"} size='lg' onClick={()=> {console.log("button is clicked")}} text='share'/>
-		</>
-	);
+  return (
+    <>
+    <Button variant='primary' text='Add Content' startIcon={<PlusIcon/>} />
+    <Button variant='secondary' text='Share Brain' startIcon={<ShareIcon/>} />
+    </>
+  )
 }
 
-export default App;
+export default App
