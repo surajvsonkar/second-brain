@@ -125,28 +125,78 @@ app.delete('/api/v1/content',userMiddleware, async(req, res) => {
 });
 
 app.post('/api/v1/brain/share', userMiddleware, async(req, res) => {
+
 	const share = req.body.share;
+	const existingHash = await Link.findOne({
+		// @ts-ignore
+		userId: req.userId
+	})
+
+	if(existingHash) {
+		res.json({
+			message: "shareable link already exists " + existingHash.hash
+		})
+		return;
+	}
+
 	if(share){
+		const hash = random(10)
 		await Link.create({
 			// @ts-ignore
 			userId: req.userId,
-			hash: random(10)
-
+			hash: hash
+		})
+		res.json({
+			message: "your shareable link is " + hash
 		})
 	} else {
 		await Link.deleteOne({
 			// @ts-ignore
 			userId: req.userId
 		})
+
+		res.json({
+			message: "your link is removed"
+		})
 	}
 
-	res.json({
-		message: "Updated shareable link"
-	})
 
 });
 
-app.get('/api/v1/brain/:sharedLink', (req, res) => {});
+app.get('/api/v1/brain/:sharedLink', async(req, res) => {
+	const hash = req.params.sharedLink
+
+	const link = await Link.findOne({
+		hash
+	})
+
+	if(!link) {
+		res.status(411).json({
+			message: "sorry incorrect input"
+		})
+		return
+	}
+	const content = await Content.find({
+		userId: link.userId
+	})
+
+	
+	const user = await User.findOne({
+		_id: link.userId
+	})
+
+	if(!user) {
+		res.status(411).json({
+			message: "user not found, error should ideally not happen"
+		})
+		return
+	}
+
+	res.json({
+		username: user.username,
+		content: content
+	})
+});
 
 app.listen(4000, () => {
 	console.log('server is listening on port 4000');
