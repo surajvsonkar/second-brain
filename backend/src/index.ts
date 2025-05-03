@@ -9,8 +9,10 @@ import {JWT_KEY} from './config'
 import { userMiddleware } from './middleware';
 import { ContextExclusionPlugin } from 'webpack';
 import { random } from './utils';
+import cors from "cors"
 
 app.use(express.json());
+app.use(cors())
 
 
 const userSchema = z.string().min(3).max(10)
