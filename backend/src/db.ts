@@ -37,7 +37,7 @@ const tagSchema = new mongoose.Schema({
     }
 })
 
-const contentTypes = ['image', 'video', 'article', 'audio']
+const contentTypes = ['twitter', 'youtube']
 
 const contentSchema = new mongoose.Schema({
     link: {

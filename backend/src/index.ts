@@ -149,7 +149,7 @@ app.post('/api/v1/brain/share', userMiddleware, async(req, res) => {
 			hash: hash
 		})
 		res.json({
-			message: "your shareable link is " + hash
+			hash
 		})
 	} else {
 		await Link.deleteOne({
